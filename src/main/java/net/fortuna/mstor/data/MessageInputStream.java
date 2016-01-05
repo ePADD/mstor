@@ -42,6 +42,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.fortuna.mstor.util.Configurator;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @author Ben
@@ -60,11 +62,13 @@ public class MessageInputStream extends InputStream {
      * Pattern used to match the From_ line within a message buffer.
      */
 //    static final Pattern FROM__LINE_PATTERN = Pattern.compile("[\\n{2}|(\\r\\n){2}]^From .*$\\s*^", Pattern.MULTILINE);
-    static final Pattern FROM__LINE_PATTERN = Pattern.compile("(\\A|\\n{2}|(\\r\\n){2})^From .*$\\s*^", Pattern.MULTILINE);
-
+    //static final Pattern FROM__LINE_PATTERN = Pattern.compile("(\\A|\\n{2}|(\\r\\n){2})^From .*$\\s*^", Pattern.MULTILINE);
+    static final Pattern FROM__LINE_PATTERN = Pattern.compile("(\\A|\\n\\r?\\n)^From .*$\\s*^", Pattern.MULTILINE);
     private CharsetDecoder decoder;
 
     private ByteBuffer buffer;
+    private Log log = LogFactory.getLog(MessageInputStream.class);
+
 
     /**
      * @param buffer
@@ -81,15 +85,18 @@ public class MessageInputStream extends InputStream {
     public MessageInputStream(final ByteBuffer b, Charset charset) throws CharacterCodingException {
         this.buffer = b;
         decoder = charset.newDecoder();
-        
+
         // adjust position to exclude the From_ line..
         Matcher matcher = FROM__LINE_PATTERN.matcher(decoder.decode(buffer));
         if (matcher.find()) {
+            if(log.isDebugEnabled()){
+                log.debug("Found match with pattern at "+matcher.start());
+            }
             buffer.rewind();
             buffer.position(buffer.position() + matcher.end());
             buffer.mark();
         }
-        
+
         // rewind for a re-read of buffer data..
         try {
             buffer.reset();

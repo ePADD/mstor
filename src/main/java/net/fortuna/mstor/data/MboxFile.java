@@ -315,8 +315,8 @@ public class MboxFile {
             List<Long> posList = new ArrayList<Long>();
 
             // debugging..
-            if(log.isDebugEnabled())
-		log.debug("Channel size [" + getChannel().size() + "] bytes");
+            if (log.isDebugEnabled())
+                log.debug("Channel size [" + getChannel().size() + "] bytes");
 
             int bufferSize = (int) Math.min(getChannel().size(),
                     DEFAULT_BUFFER_SIZE);
@@ -329,9 +329,6 @@ public class MboxFile {
             cs = decoder.decode(buffer);
 
             // debugging..
-	    if(log.isDebugEnabled())
-		log.debug("Buffer [" + cs + "]");
-
             // check that first message is correct..
 //            if (VALID_MBOX_PATTERN.matcher(cs).matches()) {
 //                // debugging..
@@ -343,24 +340,23 @@ public class MboxFile {
             // indicates the offset of the current buffer..
             long offset = 0;
 
-	    //it is not a valid mbox file if the first line does not start with From and isValid check should handle that
-	    posList.add(offset);
-	    if(log.isDebugEnabled())
-		log.debug("Found match at [" + offset + "]");
-            for (;;) {
+            //it is not a valid mbox file if the first line does not start with From and isValid check should handle that
+            posList.add(offset);
+            if (log.isDebugEnabled())
+                log.debug("Found match at [" + offset + "]");
+            for (; ; ) {
                 // Matcher matcher = fromPattern.matcher(buffer.asCharBuffer());
                 Matcher matcher = null;
                 if (CapabilityHints.isHintEnabled(CapabilityHints.KEY_MBOX_RELAXED_PARSING)) {
                     matcher = RELAXED_FROM__LINE_PATTERN.matcher(cs);
-                }
-                else {
+                } else {
                     matcher = FROM__LINE_PATTERN.matcher(cs);
                 }
 
                 while (matcher.find()) {
                     // debugging..
-		    if(log.isDebugEnabled())
-			log.debug("Found match at [" + (offset + matcher.start()) + "]");
+                    if (log.isDebugEnabled())
+                        log.debug("Found match at [" + (offset + matcher.start()) + "]");
 
                     // add one (1) to position to account for newline..
 //                    int fromPrefixOffset = matcher.group().length() - FROM__PREFIX.length();
@@ -377,8 +373,7 @@ public class MboxFile {
                 // if (offset + cb.limit() >= getChannel().size()) {
                 if (offset + bufferSize >= getChannel().size()) {
                     break;
-                }
-                else {
+                } else {
                     // preserve the end of the buffer as it may contain
                     // part of a From_ pattern..
                     // offset += cb.limit() - FROM__PATTERN.length();
